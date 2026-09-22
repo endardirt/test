@@ -41,14 +41,21 @@ def set_state(enabled):
         conn.commit()
 
 
+# Initialize the database when Flask/Gunicorn starts
+init_db()
+
+
 @app.route("/")
 def index():
-    return render_template("index.html", enabled=get_state())
+    return render_template(
+        "index.html",
+        enabled=get_state()
+    )
 
 
 @app.route("/toggle", methods=["POST"])
 def toggle():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     enabled = bool(data.get("enabled", False))
     set_state(enabled)
@@ -66,5 +73,8 @@ def api_status():
 
 
 if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=False
+    )
